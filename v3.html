@@ -8,10 +8,9 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
 
-    #game { position: fixed; transform-origin: top left; cursor: default; }
-    iframe { display: block; border: none; pointer-events: none; }
+    #game { position: fixed; transform-origin: top left; }
+    iframe { display: block; border: none; }
 
-    /* ── MENU BACKDROP ── */
     #menu {
       display: none;
       position: fixed;
@@ -25,7 +24,6 @@
     }
     #menu.open { display: flex; }
 
-    /* ── MENU PANEL ── */
     #panel {
       background: #0b0912;
       border: 1px solid rgba(160, 110, 255, 0.28);
@@ -46,9 +44,6 @@
       border-bottom: 1px solid rgba(160, 110, 255, 0.14);
     }
 
-    /* ── SECTIONS ── */
-    .section { margin-bottom: 22px; }
-
     .section-label {
       font-size: 8.5px;
       letter-spacing: 0.18em;
@@ -58,7 +53,6 @@
       display: block;
     }
 
-    /* ── RESOLUTION GRID ── */
     .res-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -88,50 +82,6 @@
       color: rgba(225, 205, 255, 1);
     }
 
-    /* ── TOGGLE ROW ── */
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .toggle-label {
-      font-size: 9.5px;
-      letter-spacing: 0.08em;
-      color: rgba(200, 170, 255, 0.7);
-    }
-
-    .toggle {
-      width: 34px;
-      height: 17px;
-      border-radius: 9px;
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(160, 110, 255, 0.22);
-      position: relative;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: background 0.18s, border-color 0.18s;
-    }
-    .toggle.on {
-      background: rgba(120, 70, 210, 0.45);
-      border-color: rgba(160, 110, 255, 0.55);
-    }
-    .toggle::after {
-      content: '';
-      position: absolute;
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-      top: 2px;
-      left: 2px;
-      background: rgba(150, 100, 240, 0.55);
-      transition: left 0.18s, background 0.18s;
-    }
-    .toggle.on::after {
-      left: 19px;
-      background: rgba(215, 190, 255, 1);
-    }
-
-    /* ── FOOTER HINT ── */
     #hint {
       margin-top: 20px;
       padding-top: 14px;
@@ -159,50 +109,34 @@
   <div id="menu">
     <div id="panel">
       <h2>Settings</h2>
-
-      <div class="section">
-        <span class="section-label">Render Resolution</span>
-        <div class="res-grid" id="res-grid">
-          <button class="res-btn" data-w="426"  data-h="240">240p</button>
-          <button class="res-btn" data-w="640"  data-h="360">360p</button>
-          <button class="res-btn active" data-w="854"  data-h="480">480p</button>
-          <button class="res-btn" data-w="1280" data-h="720">720p</button>
-          <button class="res-btn" data-w="1920" data-h="1080">1080p</button>
-          <button class="res-btn" id="btn-native">Native</button>
-        </div>
+      <span class="section-label">Render Resolution</span>
+      <div class="res-grid" id="res-grid">
+        <button class="res-btn" data-w="426"  data-h="240">240p</button>
+        <button class="res-btn" data-w="640"  data-h="360">360p</button>
+        <button class="res-btn active" data-w="854" data-h="480">480p</button>
+        <button class="res-btn" data-w="1280" data-h="720">720p</button>
+        <button class="res-btn" data-w="1920" data-h="1080">1080p</button>
+        <button class="res-btn" id="btn-native">Native</button>
       </div>
-
-      <div class="section">
-        <div class="toggle-row">
-          <span class="toggle-label">Click game to fullscreen</span>
-          <div class="toggle" id="fs-toggle"></div>
-        </div>
-      </div>
-
       <div id="hint">Right Shift + Enter &nbsp;·&nbsp; close</div>
     </div>
   </div>
 
   <script>
-    const gameEl   = document.getElementById('game');
-    const frameEl  = document.getElementById('frame');
-    const menu     = document.getElementById('menu');
-    const fsToggle = document.getElementById('fs-toggle');
-    const resGrid  = document.getElementById('res-grid');
-
-    const dpr = window.devicePixelRatio || 1;
+    const gameEl  = document.getElementById('game');
+    const frameEl = document.getElementById('frame');
+    const menu    = document.getElementById('menu');
+    const dpr     = window.devicePixelRatio || 1;
     let PW = 854, PH = 480;
-    let clickToFS = false;
 
-    /* ── RESOLUTION ── */
     function applyResolution(pw, ph) {
       PW = pw; PH = ph;
       const cw = PW / dpr;
       const ch = PH / dpr;
-      gameEl.style.width    = cw + 'px';
-      gameEl.style.height   = ch + 'px';
-      frameEl.style.width   = cw + 'px';
-      frameEl.style.height  = ch + 'px';
+      gameEl.style.width   = cw + 'px';
+      gameEl.style.height  = ch + 'px';
+      frameEl.style.width  = cw + 'px';
+      frameEl.style.height = ch + 'px';
       scaleToFit();
     }
 
@@ -218,56 +152,25 @@
     applyResolution(854, 480);
     window.addEventListener('resize', scaleToFit);
 
-    /* ── RESOLUTION BUTTONS ── */
-    resGrid.addEventListener('click', e => {
+    document.getElementById('res-grid').addEventListener('click', e => {
       const btn = e.target.closest('.res-btn');
       if (!btn) return;
-
       document.querySelectorAll('.res-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-
       if (btn.id === 'btn-native') {
-        applyResolution(
-          Math.round(window.innerWidth  * dpr),
-          Math.round(window.innerHeight * dpr)
-        );
+        applyResolution(Math.round(window.innerWidth * dpr), Math.round(window.innerHeight * dpr));
       } else {
         applyResolution(parseInt(btn.dataset.w), parseInt(btn.dataset.h));
       }
     });
 
-    /* ── FULLSCREEN TOGGLE ── */
-    fsToggle.addEventListener('click', () => {
-      clickToFS = !clickToFS;
-      fsToggle.classList.toggle('on', clickToFS);
-      frameEl.style.pointerEvents = clickToFS ? 'none' : 'none'; // keep none; click passes through wrapper
-    });
-
-    gameEl.addEventListener('click', () => {
-      if (!clickToFS) return;
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      } else {
-        document.exitFullscreen();
-      }
-    });
-
-    /* ── MENU OPEN / CLOSE ── */
     const held = new Set();
-
     window.addEventListener('keydown', e => {
       held.add(e.code);
-      if (held.has('ShiftRight') && e.code === 'Enter') {
-        menu.classList.toggle('open');
-      }
+      if (held.has('ShiftRight') && e.code === 'Enter') menu.classList.toggle('open');
     });
-
     window.addEventListener('keyup', e => held.delete(e.code));
-
-    // Click outside panel to close
-    menu.addEventListener('click', e => {
-      if (e.target === menu) menu.classList.remove('open');
-    });
+    menu.addEventListener('click', e => { if (e.target === menu) menu.classList.remove('open'); });
   </script>
 
 </body>
