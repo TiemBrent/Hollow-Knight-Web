@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hollow Knight</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #080608;
+    }
+
+    /* Atmospheric background — layered radial darkening */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 50%, transparent 40%, rgba(0,0,0,0.65) 100%),
+        radial-gradient(ellipse 120% 120% at 50% -10%, #1a0e2a 0%, #080608 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Grain texture overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 180px 180px;
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: overlay;
+    }
+
+    /* ── GAME WRAPPER ──
+       Renders at 854×480 (480p).
+       CSS transform upscales it to fill the viewport — the GPU scales,
+       not the game engine, so VRAM / RAM usage stays at 480p. */
+    #game-wrapper {
+      position: fixed;
+      width: 854px;
+      height: 480px;
+      transform-origin: top left;
+      z-index: 10;
+      /* subtle glow ring around the screen */
+      filter: drop-shadow(0 0 28px rgba(130, 80, 220, 0.22)) drop-shadow(0 0 6px rgba(0,0,0,0.9));
+    }
+
+    /* thin stylised bezel */
+    #game-wrapper::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border: 1px solid rgba(160, 110, 255, 0.18);
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    /* corner accents */
+    #game-wrapper::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border: 1px solid transparent;
+      background:
+        linear-gradient(#fff0, #fff0) padding-box,
+        linear-gradient(#fff0, #fff0) padding-box;
+      pointer-events: none;
+    }
+
+    .corner {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      z-index: 21;
+      pointer-events: none;
+    }
+    .corner::before, .corner::after {
+      content: '';
+      position: absolute;
+      background: rgba(160, 110, 255, 0.5);
+    }
+    .corner::before { width: 100%; height: 1px; top: 0; left: 0; }
+    .corner::after  { width: 1px; height: 100%; top: 0; left: 0; }
+    .corner.tr { top: 0; right: 0; transform: rotate(90deg); }
+    .corner.bl { bottom: 0; left: 0; transform: rotate(270deg); }
+    .corner.br { bottom: 0; right: 0; transform: rotate(180deg); }
+    .corner.tl { top: 0; left: 0; }
+
+    #game-frame {
+      display: block;
+      width: 854px;
+      height: 480px;
+      border: none;
+      background: #000;
+    }
+
+    /* ── HUD ── */
+    #hud {
+      position: fixed;
+      bottom: 14px;
+      right: 16px;
+      z-index: 100;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+    }
+
+    .hud-row {
+      font-family: 'Courier New', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      color: rgba(180, 140, 255, 0.35);
+      white-space: nowrap;
+    }
+    .hud-row span { color: rgba(200, 170, 255, 0.55); }
+
+    /* fullscreen button */
+    #btn-fs {
+      position: fixed;
+      top: 14px;
+      right: 16px;
+      z-index: 100;
+      background: rgba(20, 12, 32, 0.75);
+      border: 1px solid rgba(160, 110, 255, 0.25);
+      color: rgba(180, 140, 255, 0.6);
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(4px);
+    }
+    #btn-fs:hover {
+      background: rgba(130, 80, 220, 0.25);
+      border-color: rgba(160, 110, 255, 0.5);
+      color: rgba(210, 185, 255, 0.9);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-wrapper">
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+    <iframe
+      id="game-frame"
+      src="https://www.edurocks.org/filestorage/gd/hollow-knight/index.html"
+      allowfullscreen
+      allow="autoplay; fullscreen *"
+      scrolling="no"
+      frameborder="0"
+    ></iframe>
+  </div>
+
+  <button id="btn-fs" title="Toggle browser fullscreen (F11)">⛶ FULLSCREEN</button>
+
+  <div id="hud">
+    <div class="hud-row">RENDER <span>854 × 480</span></div>
+    <div class="hud-row">OUTPUT <span id="out-res">—</span></div>
+    <div class="hud-row">SCALE  <span id="scale-val">—</span></div>
+  </div>
+
+  <script>
+    const wrapper   = document.getElementById('game-wrapper');
+    const outRes    = document.getElementById('out-res');
+    const scaleVal  = document.getElementById('scale-val');
+    const BASE_W    = 854;
+    const BASE_H    = 480;
+
+    function applyScale() {
+      const vw    = window.innerWidth;
+      const vh    = window.innerHeight;
+      const scale = Math.min(vw / BASE_W, vh / BASE_H);
+      const sw    = BASE_W * scale;
+      const sh    = BASE_H * scale;
+      const left  = (vw - sw) / 2;
+      const top   = (vh - sh) / 2;
+
+      wrapper.style.transform = `scale(${scale})`;
+      wrapper.style.left      = `${left}px`;
+      wrapper.style.top       = `${top}px`;
+
+      outRes.textContent  = `${Math.round(sw)} × ${Math.round(sh)}`;
+      scaleVal.textContent = `${scale.toFixed(3)}×`;
+    }
+
+    applyScale();
+    window.addEventListener('resize', applyScale);
+
+    // Fullscreen toggle (the whole page, not the iframe — keeps the scale trick intact)
+    document.getElementById('btn-fs').addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    document.addEventListener('fullscreenchange', applyScale);
+  </script>
+</body>
+</html>
