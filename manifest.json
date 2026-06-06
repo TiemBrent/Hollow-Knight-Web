@@ -1,15 +1,23 @@
 {
   "name": "Hollow Knight",
   "short_name": "Hollow Knight",
+  "id": "/Hollow-Knight-Web/",
+  "start_url": "/Hollow-Knight-Web/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "icon.jpeg",
+      "src": "icon.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "maskable any"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
