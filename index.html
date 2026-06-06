@@ -14,17 +14,6 @@
       background: #080608;
     }
 
-    /* Atmospheric background — layered radial darkening */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 70% 60% at 50% 50%, transparent 40%, rgba(0,0,0,0.65) 100%),
-        radial-gradient(ellipse 120% 120% at 50% -10%, #1a0e2a 0%, #080608 60%);
-      pointer-events: none;
-      z-index: 0;
-    }
 
     /* Grain texture overlay */
     body::after {
@@ -50,8 +39,6 @@
       height: 480px;
       transform-origin: top left;
       z-index: 10;
-      /* subtle glow ring around the screen */
-      filter: drop-shadow(0 0 28px rgba(130, 80, 220, 0.22)) drop-shadow(0 0 6px rgba(0,0,0,0.9));
     }
 
     /* thin stylised bezel */
@@ -70,31 +57,8 @@
       position: absolute;
       inset: -4px;
       border: 1px solid transparent;
-      background:
-        linear-gradient(#fff0, #fff0) padding-box,
-        linear-gradient(#fff0, #fff0) padding-box;
       pointer-events: none;
     }
-
-    .corner {
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      z-index: 21;
-      pointer-events: none;
-    }
-    .corner::before, .corner::after {
-      content: '';
-      position: absolute;
-      background: rgba(160, 110, 255, 0.5);
-    }
-    .corner::before { width: 100%; height: 1px; top: 0; left: 0; }
-    .corner::after  { width: 1px; height: 100%; top: 0; left: 0; }
-    .corner.tr { top: 0; right: 0; transform: rotate(90deg); }
-    .corner.bl { bottom: 0; left: 0; transform: rotate(270deg); }
-    .corner.br { bottom: 0; right: 0; transform: rotate(180deg); }
-    .corner.tl { top: 0; left: 0; }
-
     #game-frame {
       display: block;
       width: 854px;
@@ -103,59 +67,12 @@
       background: #000;
     }
 
-    /* ── HUD ── */
-    #hud {
-      position: fixed;
-      bottom: 14px;
-      right: 16px;
-      z-index: 100;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 3px;
-    }
 
-    .hud-row {
-      font-family: 'Courier New', monospace;
-      font-size: 9.5px;
-      letter-spacing: 0.08em;
-      color: rgba(180, 140, 255, 0.35);
-      white-space: nowrap;
-    }
-    .hud-row span { color: rgba(200, 170, 255, 0.55); }
-
-    /* fullscreen button */
-    #btn-fs {
-      position: fixed;
-      top: 14px;
-      right: 16px;
-      z-index: 100;
-      background: rgba(20, 12, 32, 0.75);
-      border: 1px solid rgba(160, 110, 255, 0.25);
-      color: rgba(180, 140, 255, 0.6);
-      font-family: 'Courier New', monospace;
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      padding: 5px 10px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      backdrop-filter: blur(4px);
-    }
-    #btn-fs:hover {
-      background: rgba(130, 80, 220, 0.25);
-      border-color: rgba(160, 110, 255, 0.5);
-      color: rgba(210, 185, 255, 0.9);
-    }
   </style>
 </head>
 <body>
 
   <div id="game-wrapper">
-    <div class="corner tl"></div>
-    <div class="corner tr"></div>
-    <div class="corner bl"></div>
-    <div class="corner br"></div>
     <iframe
       id="game-frame"
       src="https://www.edurocks.org/filestorage/gd/hollow-knight/index.html"
