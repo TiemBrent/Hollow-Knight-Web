@@ -11,6 +11,32 @@
     #game { position: fixed; transform-origin: top left; }
     iframe { display: block; border: none; }
 
+    /* ── SETTINGS BUTTON ── */
+    #settings-btn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 500;
+      width: 26px;
+      height: 26px;
+      background: rgba(8, 5, 14, 0.72);
+      border: 1px solid rgba(160, 110, 255, 0.18);
+      color: rgba(160, 110, 255, 0.3);
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      backdrop-filter: blur(4px);
+    }
+    #settings-btn:hover {
+      background: rgba(130, 80, 220, 0.22);
+      border-color: rgba(160, 110, 255, 0.48);
+      color: rgba(210, 185, 255, 0.9);
+    }
+
+    /* ── MENU BACKDROP ── */
     #menu {
       display: none;
       position: fixed;
@@ -24,6 +50,7 @@
     }
     #menu.open { display: flex; }
 
+    /* ── MENU PANEL ── */
     #panel {
       background: #0b0912;
       border: 1px solid rgba(160, 110, 255, 0.28);
@@ -106,6 +133,9 @@
     ></iframe>
   </div>
 
+  <!-- Lives in the parent document — always reachable regardless of iframe focus -->
+  <button id="settings-btn" title="Settings (Right Shift + Enter)">⚙</button>
+
   <div id="menu">
     <div id="panel">
       <h2>Settings</h2>
@@ -118,7 +148,7 @@
         <button class="res-btn" data-w="1920" data-h="1080">1080p</button>
         <button class="res-btn" id="btn-native">Native</button>
       </div>
-      <div id="hint">Right Shift + Enter &nbsp;·&nbsp; close</div>
+      <div id="hint">⚙ button &nbsp;·&nbsp; Right Shift + Enter</div>
     </div>
   </div>
 
@@ -149,8 +179,12 @@
       gameEl.style.top  = `${(window.innerHeight - ch * s) / 2}px`;
     }
 
+    function toggleMenu() { menu.classList.toggle('open'); }
+
     applyResolution(854, 480);
     window.addEventListener('resize', scaleToFit);
+
+    document.getElementById('settings-btn').addEventListener('click', toggleMenu);
 
     document.getElementById('res-grid').addEventListener('click', e => {
       const btn = e.target.closest('.res-btn');
@@ -164,12 +198,14 @@
       }
     });
 
+    // Keyboard shortcut — works when window has focus (before clicking into the game)
     const held = new Set();
     window.addEventListener('keydown', e => {
       held.add(e.code);
-      if (held.has('ShiftRight') && e.code === 'Enter') menu.classList.toggle('open');
+      if (held.has('ShiftRight') && e.code === 'Enter') toggleMenu();
     });
     window.addEventListener('keyup', e => held.delete(e.code));
+
     menu.addEventListener('click', e => { if (e.target === menu) menu.classList.remove('open'); });
   </script>
 
