@@ -6,128 +6,45 @@
   <title>Hollow Knight</title>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
 
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #080608;
-    }
-
-
-    /* Grain texture overlay */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      background-repeat: repeat;
-      background-size: 180px 180px;
-      opacity: 0.35;
-      pointer-events: none;
-      z-index: 0;
-      mix-blend-mode: overlay;
-    }
-
-    /* ── GAME WRAPPER ──
-       Renders at 854×480 (480p).
-       CSS transform upscales it to fill the viewport — the GPU scales,
-       not the game engine, so VRAM / RAM usage stays at 480p. */
-    #game-wrapper {
+    #game {
       position: fixed;
       width: 854px;
       height: 480px;
       transform-origin: top left;
-      z-index: 10;
     }
 
-    /* thin stylised bezel */
-    #game-wrapper::before {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border: 1px solid rgba(160, 110, 255, 0.18);
-      pointer-events: none;
-      z-index: 20;
-    }
-
-    /* corner accents */
-    #game-wrapper::after {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      border: 1px solid transparent;
-      pointer-events: none;
-    }
-    #game-frame {
+    iframe {
       display: block;
       width: 854px;
       height: 480px;
       border: none;
-      background: #000;
     }
-
-
   </style>
 </head>
 <body>
-
-  <div id="game-wrapper">
+  <div id="game">
     <iframe
-      id="game-frame"
       src="https://www.edurocks.org/filestorage/gd/hollow-knight/index.html"
       allowfullscreen
       allow="autoplay; fullscreen *"
       scrolling="no"
-      frameborder="0"
     ></iframe>
   </div>
 
-  <button id="btn-fs" title="Toggle browser fullscreen (F11)">⛶ FULLSCREEN</button>
-
-  <div id="hud">
-    <div class="hud-row">RENDER <span>854 × 480</span></div>
-    <div class="hud-row">OUTPUT <span id="out-res">—</span></div>
-    <div class="hud-row">SCALE  <span id="scale-val">—</span></div>
-  </div>
-
   <script>
-    const wrapper   = document.getElementById('game-wrapper');
-    const outRes    = document.getElementById('out-res');
-    const scaleVal  = document.getElementById('scale-val');
-    const BASE_W    = 854;
-    const BASE_H    = 480;
+    const game = document.getElementById('game');
 
-    function applyScale() {
-      const vw    = window.innerWidth;
-      const vh    = window.innerHeight;
-      const scale = Math.min(vw / BASE_W, vh / BASE_H);
-      const sw    = BASE_W * scale;
-      const sh    = BASE_H * scale;
-      const left  = (vw - sw) / 2;
-      const top   = (vh - sh) / 2;
-
-      wrapper.style.transform = `scale(${scale})`;
-      wrapper.style.left      = `${left}px`;
-      wrapper.style.top       = `${top}px`;
-
-      outRes.textContent  = `${Math.round(sw)} × ${Math.round(sh)}`;
-      scaleVal.textContent = `${scale.toFixed(3)}×`;
+    function scale() {
+      const s = Math.min(window.innerWidth / 854, window.innerHeight / 480);
+      game.style.transform = `scale(${s})`;
+      game.style.left = `${(window.innerWidth  - 854 * s) / 2}px`;
+      game.style.top  = `${(window.innerHeight - 480 * s) / 2}px`;
     }
 
-    applyScale();
-    window.addEventListener('resize', applyScale);
-
-    // Fullscreen toggle (the whole page, not the iframe — keeps the scale trick intact)
-    document.getElementById('btn-fs').addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      } else {
-        document.exitFullscreen();
-      }
-    });
-
-    document.addEventListener('fullscreenchange', applyScale);
+    scale();
+    window.addEventListener('resize', scale);
   </script>
 </body>
 </html>
