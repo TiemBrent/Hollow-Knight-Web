@@ -114,9 +114,10 @@
       <h2>Settings</h2>
       <span class="section-label">Render Resolution</span>
       <div class="res-grid" id="res-grid">
+        <button class="res-btn active" data-w="256"  data-h="144">144p</button>
         <button class="res-btn" data-w="426"  data-h="240">240p</button>
         <button class="res-btn" data-w="640"  data-h="360">360p</button>
-        <button class="res-btn active" data-w="854" data-h="480">480p</button>
+        <button class="res-btn" data-w="854"  data-h="480">480p</button>
         <button class="res-btn" data-w="1280" data-h="720">720p</button>
         <button class="res-btn" data-w="1920" data-h="1080">1080p</button>
         <button class="res-btn" id="btn-native">Native</button>
@@ -130,7 +131,7 @@
     const frameEl = document.getElementById('frame');
     const menu    = document.getElementById('menu');
     const dpr     = window.devicePixelRatio || 1;
-    let PW = 854, PH = 480;
+    let PW = 256, PH = 144;
 
     function applyResolution(pw, ph) {
       PW = pw; PH = ph;
@@ -154,7 +155,7 @@
 
     function toggleMenu() { menu.classList.toggle('open'); }
 
-    applyResolution(854, 480);
+    applyResolution(256, 144);
     window.addEventListener('resize', scaleToFit);
 
     document.getElementById('res-grid').addEventListener('click', e => {
