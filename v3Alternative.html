@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hollow Knight</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon.png">
+  <meta name="theme-color" content="#000000">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+
+    #game { position: fixed; transform-origin: top left; }
+    iframe { display: block; border: none; }
+
+    #menu {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+    }
+    #menu.open { display: flex; }
+
+    #panel {
+      background: #0b0912;
+      border: 1px solid rgba(160, 110, 255, 0.28);
+      width: 300px;
+      padding: 26px 28px 22px;
+      font-family: 'Courier New', monospace;
+      color: rgba(200, 170, 255, 0.85);
+      box-shadow: 0 0 40px rgba(100, 60, 200, 0.18);
+    }
+
+    #panel h2 {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(160, 110, 255, 0.6);
+      padding-bottom: 14px;
+      margin-bottom: 22px;
+      border-bottom: 1px solid rgba(160, 110, 255, 0.14);
+    }
+
+    .section-label {
+      font-size: 8.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(160, 110, 255, 0.42);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .res-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+    }
+
+    .res-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(160, 110, 255, 0.18);
+      color: rgba(190, 155, 255, 0.55);
+      font-family: 'Courier New', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.06em;
+      padding: 7px 0;
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+      text-align: center;
+    }
+    .res-btn:hover {
+      background: rgba(130, 80, 220, 0.18);
+      border-color: rgba(160, 110, 255, 0.38);
+      color: rgba(210, 185, 255, 0.85);
+    }
+    .res-btn.active {
+      background: rgba(130, 80, 220, 0.28);
+      border-color: rgba(170, 120, 255, 0.65);
+      color: rgba(225, 205, 255, 1);
+    }
+
+    #hint {
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(160, 110, 255, 0.1);
+      font-size: 8px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(160, 110, 255, 0.25);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game">
+    <iframe
+      id="frame"
+      src="https://tiembrent.github.io/hollow-knight-web-v2/index.html"
+      allowfullscreen
+      allow="autoplay; fullscreen *"
+      scrolling="no"
+    ></iframe>
+  </div>
+
+  <div id="menu">
+    <div id="panel">
+      <h2>Settings</h2>
+      <span class="section-label">Render Resolution</span>
+      <div class="res-grid" id="res-grid">
+        <button class="res-btn" data-w="426"  data-h="240">240p</button>
+        <button class="res-btn" data-w="640"  data-h="360">360p</button>
+        <button class="res-btn active" data-w="854" data-h="480">480p</button>
+        <button class="res-btn" data-w="1280" data-h="720">720p</button>
+        <button class="res-btn" data-w="1920" data-h="1080">1080p</button>
+        <button class="res-btn" id="btn-native">Native</button>
+      </div>
+      <div id="hint">Right Shift to close</div>
+    </div>
+  </div>
+
+  <script>
+    const gameEl  = document.getElementById('game');
+    const frameEl = document.getElementById('frame');
+    const menu    = document.getElementById('menu');
+    const dpr     = window.devicePixelRatio || 1;
+    let PW = 854, PH = 480;
+
+    function applyResolution(pw, ph) {
+      PW = pw; PH = ph;
+      const cw = PW / dpr;
+      const ch = PH / dpr;
+      gameEl.style.width   = cw + 'px';
+      gameEl.style.height  = ch + 'px';
+      frameEl.style.width  = cw + 'px';
+      frameEl.style.height = ch + 'px';
+      scaleToFit();
+    }
+
+    function scaleToFit() {
+      const cw = PW / dpr;
+      const ch = PH / dpr;
+      const s  = Math.min(window.innerWidth / cw, window.innerHeight / ch);
+      gameEl.style.transform = `scale(${s})`;
+      gameEl.style.left = `${(window.innerWidth  - cw * s) / 2}px`;
+      gameEl.style.top  = `${(window.innerHeight - ch * s) / 2}px`;
+    }
+
+    function toggleMenu() { menu.classList.toggle('open'); }
+
+    applyResolution(854, 480);
+    window.addEventListener('resize', scaleToFit);
+
+    document.getElementById('res-grid').addEventListener('click', e => {
+      const btn = e.target.closest('.res-btn');
+      if (!btn) return;
+      document.querySelectorAll('.res-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (btn.id === 'btn-native') {
+        applyResolution(Math.round(window.innerWidth * dpr), Math.round(window.innerHeight * dpr));
+      } else {
+        applyResolution(parseInt(btn.dataset.w), parseInt(btn.dataset.h));
+      }
+    });
+
+    let shiftClean = false;
+    window.addEventListener('keydown', e => {
+      if (e.code === 'ShiftRight') { shiftClean = true; return; }
+      shiftClean = false;
+    });
+    window.addEventListener('keyup', e => {
+      if (e.code === 'ShiftRight' && shiftClean) toggleMenu();
+      shiftClean = false;
+    });
+
+    menu.addEventListener('click', e => { if (e.target === menu) menu.classList.remove('open'); });
+  </script>
+
+</body>
+</html>
